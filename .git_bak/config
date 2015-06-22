@@ -1,0 +1,16 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+	logallrefupdates = true
+[remote "origin"]
+	url = ssh://git@bitbucket.org:Gr33nOpo55um/mqtt_tech_chat.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "master"]
+	remote = origin
+	merge = refs/heads/master
+	rebase = false
+[gitg]
+	mainline = refs/heads/master
+[branch]
+	autosetuprebase = never
