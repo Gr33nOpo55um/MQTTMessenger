@@ -1,6 +1,6 @@
 package ch.silas.test;
 
-import ch.silas.sql.SQLChat;
+import ch.silas.backup.SQLChat;
 
 import java.sql.Connection;
 import java.sql.SQLException;

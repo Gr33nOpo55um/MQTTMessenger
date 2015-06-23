@@ -1,4 +1,4 @@
-package ch.silas.sql;
+package ch.silas.backup;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -57,11 +57,8 @@ public class SQLChat {
         }
         // String sqlInsertMsg = "INSERT INTO mqttChat (SENDER, MESSAGE) VALUES (" + sender + "," + message + ");";
 
-
         try {
-
-
-            stmtCreate.executeUpdate("INSERT INTO mqttChat (SENDER, MESSAGE) VALUES ( " + sender + ", " + message + "  );");
+            stmtCreate.executeUpdate("INSERT INTO mqttChat (CREATION_TS, SENDER, MESSAGE) VALUES ( " + date + "," + sender + ", " + message + "  );");
         } catch (SQLException e) {
             e.printStackTrace();
         }

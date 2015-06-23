@@ -4,7 +4,7 @@ import ch.silas.Message.unagaMQTTMessage;
 import ch.silas.ProbSettings;
 import ch.silas.backup.SilasMqttReceiver;
 import ch.silas.mqtt.MqttClient;
-import ch.silas.sql.SQLChat;
+import ch.silas.sql.SQLClient;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
@@ -26,7 +26,7 @@ public class MainMenu extends BorderPane implements Observer, SilasMqttReceiver 
     ProbSettings probSettings = new ProbSettings();
     String url = probSettings.loadProb("url");
     String username = probSettings.loadProb("username");
-    private SQLChat sqlChat;
+    private SQLClient sqlClient;
     private BorderPane borderPane;
     private HBox horizontal;
     private VBox verticalCenter, verticalLeft;
@@ -160,21 +160,25 @@ public class MainMenu extends BorderPane implements Observer, SilasMqttReceiver 
     public void receive(String topic, String message) throws SQLException {
 
         //Some tricky substrings, thanks codingbat ^^
-        String date, sender, text;
-
-        System.out.println(message.substring(6, 31));
-
+        String date, sender, text, sqlStatement;
 
         sender = message.substring(message.indexOf(";") + 9, message.lastIndexOf(";"));
         text = message.substring(51, message.length() - 1);
-
         date = message.substring(8, 25).replace('T', ' ');
         //Date: 2015-06-23T15:14:07.518Z;Sender: Silas;Text: test
         // to 15-06-23 15:22:06
 
-        sqlChat.dbConnect();
-        sqlChat.dbWriter(sender, message);
-        sqlChat.dbDisconnect();
+
+        sqlStatement = "INSERT INTO mqttChat (CREATION_TS, SENDER, MESSAGE) VALUES ('15-06-23 15:22:06', 'silas', 'test' )";
+
+        System.out.print(sqlStatement);
+
+        sqlClient.dbConnect();
+
+        System.out.print(sqlClient);
+
+        sqlClient.dbWriter(sqlStatement);
+        sqlClient.dbDisconnect();
     }
 }
 

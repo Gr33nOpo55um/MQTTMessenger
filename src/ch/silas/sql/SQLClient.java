@@ -1,7 +1,6 @@
 package ch.silas.sql;
 
 import java.sql.*;
-import java.util.List;
 
 /**
  * Created by Silas Stegmueller on 23.06.15.
@@ -13,7 +12,7 @@ public class SQLClient {
     Statement statement = null;
 
 
-    public void dbConnect(String topic, List<String> cachedMessages) {
+    public void dbConnect() {
 
 
         try {
