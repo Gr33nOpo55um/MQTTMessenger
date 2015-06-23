@@ -1,8 +1,8 @@
 package ch.silas.sql;
 
-import ch.silas.mqtt.MqttClient;
+import ch.silas.backup.MqttClientBAK;
 import ch.silas.mqtt.SilasMqttClient;
-import ch.silas.mqtt.SilasMqttReceiver;
+import ch.silas.backup.SilasMqttReceiver;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -32,7 +32,7 @@ public class SQLModule implements SilasMqttReceiver, Runnable {
         END_MESSAGE = endMessage;
 
 
-        mqttClient = new MqttClient(clientId);
+        mqttClient = new MqttClientBAK(clientId);
 
         mqttClient.start(url);
         mqttClient.subscribe(topic, this);
@@ -47,7 +47,7 @@ public class SQLModule implements SilasMqttReceiver, Runnable {
     public void receive(String topic, String message) {
 
         try {
-            sqlWriter.dbConnect(c);
+            sqlWriter.dbConnect();
         } catch (SQLException e) {
             e.printStackTrace();
         }

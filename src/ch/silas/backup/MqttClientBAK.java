@@ -1,7 +1,7 @@
-package ch.silas.mqtt;
+package ch.silas.backup;
 
 import ch.silas.Message.unagaMQTTMessage;
-import ch.silas.backup.SilasMqttReceiver;
+import ch.silas.mqtt.SilasMqttClient;
 import org.eclipse.paho.client.mqttv3.*;
 
 import java.io.ByteArrayOutputStream;
@@ -12,8 +12,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Created by Silas Stegmueller on 08.05.2015.
  */
-public class MqttClient extends Observable implements SilasMqttClient {
-
+public class MqttClientBAK extends Observable implements SilasMqttClient {
 
     private static final int QOS = 2;
 
@@ -21,10 +20,12 @@ public class MqttClient extends Observable implements SilasMqttClient {
     private final AtomicBoolean started;
     private final MqttConnectOptions mqttConnectOptions;
 
+    private MqttClientBAK mqttClientBAK = null;
+
 
     private MqttAsyncClient asyncClient;
 
-    public MqttClient(String clientId) {
+    public MqttClientBAK(String clientId) {
         this.clientId = clientId;
 
         started = new AtomicBoolean(false);
@@ -33,7 +34,7 @@ public class MqttClient extends Observable implements SilasMqttClient {
         mqttConnectOptions.setCleanSession(true);
     }
 
-    @Override
+    @java.lang.Override
     public void start(String url) {
         if (started.compareAndSet(false, true)) {
             try {
@@ -50,7 +51,7 @@ public class MqttClient extends Observable implements SilasMqttClient {
         }
     }
 
-    @Override
+    @java.lang.Override
     public void stop() {
         if (started.compareAndSet(true, false)) {
             try {
@@ -70,7 +71,7 @@ public class MqttClient extends Observable implements SilasMqttClient {
         }
     }
 
-    @Override
+    @java.lang.Override
     public void subscribe(String topic, SilasMqttReceiver receiver) {
         if (started.get()) {
             try {
@@ -104,20 +105,19 @@ public class MqttClient extends Observable implements SilasMqttClient {
         }
     }
 
-
-    //Send Method, this will publish a topic and an mqttMessage to the mqtt server
     @Override
     public void send(String topic, unagaMQTTMessage mqttMessage) {
+
+    }
+
+    // @Override
+    public void send(String topic, String mqttMessage) {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintWriter pw = new PrintWriter(baos);
         pw.println(mqttMessage);
         pw.close();
-
         MqttMessage message = new MqttMessage(baos.toByteArray());
-
-        System.out.println(message);
-
         try {
             asyncClient.publish(topic, message);
         } catch (MqttException e) {
@@ -126,7 +126,8 @@ public class MqttClient extends Observable implements SilasMqttClient {
 
 
         //update chat window
-        //  this.notifyObservers();
+        this.notifyObservers();
+
     }
 
 

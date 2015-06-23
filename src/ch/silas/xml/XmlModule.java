@@ -1,8 +1,8 @@
 package ch.silas.xml;
 
-import ch.silas.mqtt.MqttClient;
+import ch.silas.backup.MqttClientBAK;
 import ch.silas.mqtt.SilasMqttClient;
-import ch.silas.mqtt.SilasMqttReceiver;
+import ch.silas.backup.SilasMqttReceiver;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,7 +27,7 @@ public class XmlModule implements SilasMqttReceiver, Runnable {
         xmlWriter = new XMLWriter();
         END_MESSAGE = endMessage;
 
-        mqttClient = new MqttClient(clientId);
+        mqttClient = new MqttClientBAK(clientId);
 
         mqttClient.start(url);
         mqttClient.subscribe(topic, this);

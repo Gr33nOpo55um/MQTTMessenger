@@ -12,8 +12,8 @@ public class DBTester {
     public static void main(String[] args) {
         Connection c = null;
 
-        String messages = "hallo schadz ich liebe dich";
-        String topic = "Philomene";
+        //String messages = "testmessage";
+        // String topic = "sdldslk";
 
         SQLWriter sqlWriter = new SQLWriter();
 

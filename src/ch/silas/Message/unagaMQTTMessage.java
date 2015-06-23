@@ -1,25 +1,27 @@
 package ch.silas.Message;
 
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+
 import java.io.Serializable;
 import java.time.Instant;
 
 /**
  * Created by Silas Stegmueller on 08.06.15.
  */
-public class unagaMQTTMessage implements Serializable {
-    private final String text;
+public class unagaMQTTMessage extends MqttMessage implements Serializable {
+    private final String message;
     private final Instant date;
     private String sender;
 
-    public unagaMQTTMessage(String text, String sender) {
-        this.text = text;
+    public unagaMQTTMessage(String message, String sender) {
+        this.message = message;
         this.date = Instant.now();
         this.sender = sender;
     }
 
 
-    public String getText() {
-        return text;
+    public String getMessage() {
+        return message;
     }
 
     public Instant getDate() {
@@ -32,7 +34,7 @@ public class unagaMQTTMessage implements Serializable {
 
     public String toString() {
 
-        return "Date: " + date + ";Sender: " + sender + ";Text: " + text + ";Password: ";
+        return "Date: " + date + ";Sender: " + sender + ";Text: " + message;
     }
 
 

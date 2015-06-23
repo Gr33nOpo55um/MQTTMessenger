@@ -2,7 +2,9 @@ package ch.silas.gui;
 
 import ch.silas.Message.unagaMQTTMessage;
 import ch.silas.ProbSettings;
+import ch.silas.backup.SilasMqttReceiver;
 import ch.silas.mqtt.MqttClient;
+import ch.silas.sql.SQLChat;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
@@ -10,7 +12,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-import java.util.ArrayList;
+import java.sql.SQLException;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -18,18 +20,13 @@ import java.util.Observer;
 /**
  * Created by Silas Stegmueller on 01.06.15.
  */
-public class MainMenu extends BorderPane implements Observer {
+public class MainMenu extends BorderPane implements Observer, SilasMqttReceiver {
 
 
     ProbSettings probSettings = new ProbSettings();
     String url = probSettings.loadProb("url");
-    String user = probSettings.loadProb("user");
-    String password = probSettings.loadProb("password");
-    String topic = probSettings.loadProb("topic");
-    String END_MESSAGE = probSettings.loadProb("END_MESSAGE");
-    ArrayList<String> chatmessage;
-
-
+    String username = probSettings.loadProb("username");
+    private SQLChat sqlChat;
     private BorderPane borderPane;
     private HBox horizontal;
     private VBox verticalCenter, verticalLeft;
@@ -38,19 +35,12 @@ public class MainMenu extends BorderPane implements Observer {
     private MenuBar menuBar;
     private Menu Menufile;
     private MenuItem Mmqtt_disconnect, Mexit, Mmqtt_connect;
-
-
     private unagaMQTTMessage mqttMessage;
     private MqttClient mqttClient;
-
-    private TextArea textField;
-    private TextField writeArea;
-
-
+    private Label textField;
+    private TextField sendTextField;
     private ComboBox comboBox;
-
     private Label status, chatDivide;
-
 
     public MainMenu() {
 
@@ -81,8 +71,8 @@ public class MainMenu extends BorderPane implements Observer {
         this.comboBox = new ComboBox<>();
 
 
-        this.textField = new TextArea();
-        this.writeArea = new TextField();
+        this.textField = new Label();
+        this.sendTextField = new TextField();
 
         this.sendChat = new Button("Send Message");
         this.sendHWInfo = new Button("Send desired HW Info");
@@ -94,7 +84,7 @@ public class MainMenu extends BorderPane implements Observer {
         this.verticalCenter = new VBox();
         this.verticalLeft = new VBox();
 
-        this.horizontal.getChildren().addAll(writeArea);
+        this.horizontal.getChildren().addAll(sendTextField);
 
 
         this.verticalLeft.getChildren().addAll(this.comboBox, this.sendHWInfo);
@@ -112,6 +102,7 @@ public class MainMenu extends BorderPane implements Observer {
         mqttClient = new MqttClient("cliendID");
         mqttClient.start(url);
 
+        mqttClient.subscribe("mqttChat", this);
 
         /**
          *
@@ -120,25 +111,31 @@ public class MainMenu extends BorderPane implements Observer {
          */
 
 
-        this.sendChat.addEventHandler(ActionEvent.ACTION, event -> sendChatMessage("username", this.textField.getText().toString()));
+        this.sendChat.addEventHandler(ActionEvent.ACTION, event -> {
+            try {
+                sendChatMessage(username, this.sendTextField.getText());
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
         //   this.sendChat.setAccelerator(KeyCombination.keyCombination("Enter"));
 
 
     }
 
-    public void sendChatMessage(String sender, String message) {
+    public void sendChatMessage(String sender, String message) throws SQLException {
 
+        mqttClient = new MqttClient("sendChatMessage");
 
         mqttMessage = new unagaMQTTMessage(message, sender);
-
-        mqttClient.send(topic, mqttMessage);
-        this.receiveChatMessage();
-    }
+        mqttClient.start(url);
 
 
-    public void receiveChatMessage() {
-
-        this.textField.setText("latest chat recieve");
+        //Debug purposes
+        //System.out.print(mqttMessage);
+        mqttClient.send("mqttChat", mqttMessage);
+        mqttClient.stop();
 
 
     }
@@ -158,4 +155,27 @@ public class MainMenu extends BorderPane implements Observer {
             this.textField.setText(" platzhalter");
         });
     }
+
+    @Override
+    public void receive(String topic, String message) throws SQLException {
+
+        //Some tricky substrings, thanks codingbat ^^
+        String date, sender, text;
+
+        System.out.println(message.substring(6, 31));
+
+
+        sender = message.substring(message.indexOf(";") + 9, message.lastIndexOf(";"));
+        text = message.substring(51, message.length() - 1);
+
+        date = message.substring(8, 25).replace('T', ' ');
+        //Date: 2015-06-23T15:14:07.518Z;Sender: Silas;Text: test
+        // to 15-06-23 15:22:06
+
+        sqlChat.dbConnect();
+        sqlChat.dbWriter(sender, message);
+        sqlChat.dbDisconnect();
+    }
 }
+
+

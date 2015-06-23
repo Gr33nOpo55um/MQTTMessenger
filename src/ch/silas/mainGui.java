@@ -11,21 +11,14 @@ import javafx.stage.Stage;
  */
 public class mainGui extends Application {
 
+
     public static void main(String[] args) {
         launch(args);
     }
 
-
     @Override
-    public void start(Stage stage) throws Exception {
+    public void start(Stage stage) {
 
-
-        ProbSettings probSettings = new ProbSettings();
-        String url = probSettings.loadProb("url");
-        String user = probSettings.loadProb("user");
-        String password = probSettings.loadProb("password");
-        String topic = probSettings.loadProb("topic");
-        String END_MESSAGE = probSettings.loadProb("END_MESSAGE");
 
         MainMenu mainMenu = new MainMenu();
 
@@ -37,14 +30,13 @@ public class mainGui extends Application {
         stage.show();
 
 
-
     }
 
     public void stop() {
 
-
         Platform.exit();
         System.exit(0);
+
     }
 
 }

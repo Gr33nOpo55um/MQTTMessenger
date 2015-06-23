@@ -12,10 +12,10 @@ import java.util.List;
 public class SQLWriter {
 
 
-    public void dbConnect(Connection c) throws SQLException {
+    public void dbConnect() throws SQLException {
         try {
             Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:test.db");
+            Connection c = DriverManager.getConnection("jdbc:sqlite:test.db");
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
@@ -72,7 +72,11 @@ public class SQLWriter {
             e.printStackTrace();
         }
 
-        //c.commit(); //not necessary because of auto commit
+        try {
+            c.commit(); //not necessary because of auto commit
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
         System.out.println("Operation done successfully");
     }

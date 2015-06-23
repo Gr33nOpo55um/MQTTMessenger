@@ -1,6 +1,7 @@
 package ch.silas.mqtt;
 
 import ch.silas.Message.unagaMQTTMessage;
+import ch.silas.backup.SilasMqttReceiver;
 
 /**
  * Created by Silas Stegmueller on 08.05.2015.

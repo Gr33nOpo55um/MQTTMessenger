@@ -1,7 +1,8 @@
-package ch.silas;
+package ch.silas.test;
 
-import ch.silas.backup.TestSender;
+import ch.silas.ProbSettings;
 import ch.silas.sql.SQLModule;
+import ch.silas.xml.XmlModule;
 
 import java.sql.SQLException;
 
@@ -27,16 +28,16 @@ public class Main {
         System.out.println(topic);
 
 
-        // Thread xmlModule = new Thread(new XmlModule(url, topic, "XMLModul", END_MESSAGE, message));
+        Thread xmlModule = new Thread(new XmlModule(url, topic, "XMLModul", END_MESSAGE, message));
 
-        Thread testSender = new Thread(new TestSender(url));
+        //Thread testSender = new Thread(new TestSender(url));
         Thread sqlModule = new Thread(new SQLModule(url, topic, "SQLModul", END_MESSAGE, message));
 
 
-        //xmlModule.run();
+        xmlModule.run();
 
 
-        testSender.start();
+        //  testSender.start();
         sqlModule.run();
 
         //   testSender.getState();
