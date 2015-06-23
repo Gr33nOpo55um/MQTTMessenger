@@ -14,10 +14,9 @@ public class SQLClient {
 
     public void dbConnect() {
 
-
         try {
             Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:test.db");
+            c = DriverManager.getConnection("jdbc:sqlite:/home/silas/IdeaProjects/XMLeaning1/test.db");
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
@@ -43,12 +42,14 @@ public class SQLClient {
 
             }
 
-            try {
+       /*
+          NO COMMIT NEEDED CAUSED OF AUTO COMMIT
+          try {
                 c.commit();
             } catch (SQLException e1) {
                 e1.printStackTrace();
             }
-
+*/
 
             try {
                 c.close();
@@ -72,22 +73,23 @@ public class SQLClient {
 
     }
 
-    public void readChat() throws SQLException {
+    public String readChat() throws SQLException {
         String sqlResult = "";
         ResultSet rs;
-        String sqlQuery = "select creation_ts, sender, message from mqttChat;";
+        String sqlQuery = "select creation_ts, sender, message from chat;";
 
         rs = statement.executeQuery(String.valueOf(sqlQuery));
 
 
         while (rs.next()) {
-
             Date date = rs.getDate("creation_ts");
             String sender = rs.getString("sender");
             String message = rs.getString("message");
             System.out.println("Date: = " + date);
             System.out.println("Sender = " + sender);
             System.out.println("Message = " + message);
+            sqlResult = sqlResult + date + "\n" + sender + message + "\n\n";
+
             System.out.println();
         }
         rs.close();
@@ -96,7 +98,9 @@ public class SQLClient {
         c.close();
 
         System.out.println("Operation done successfully");
-
+        return sqlResult;
 
     }
+
+
 }

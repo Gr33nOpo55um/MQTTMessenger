@@ -5,7 +5,6 @@ import ch.silas.ProbSettings;
 import ch.silas.backup.SilasMqttReceiver;
 import ch.silas.mqtt.MqttClient;
 import ch.silas.sql.SQLClient;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
@@ -13,14 +12,12 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import java.sql.SQLException;
-import java.util.Observable;
-import java.util.Observer;
 
 
 /**
  * Created by Silas Stegmueller on 01.06.15.
  */
-public class MainMenu extends BorderPane implements Observer, SilasMqttReceiver {
+public class MainMenu extends BorderPane implements SilasMqttReceiver {
 
 
     ProbSettings probSettings = new ProbSettings();
@@ -112,19 +109,15 @@ public class MainMenu extends BorderPane implements Observer, SilasMqttReceiver 
 
 
         this.sendChat.addEventHandler(ActionEvent.ACTION, event -> {
-            try {
-                sendChatMessage(username, this.sendTextField.getText());
+            sendChatMessage(username, this.sendTextField.getText());
 
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         });
         //   this.sendChat.setAccelerator(KeyCombination.keyCombination("Enter"));
 
 
     }
 
-    public void sendChatMessage(String sender, String message) throws SQLException {
+    public void sendChatMessage(String sender, String message) {
 
         mqttClient = new MqttClient("sendChatMessage");
 
@@ -137,24 +130,29 @@ public class MainMenu extends BorderPane implements Observer, SilasMqttReceiver 
         mqttClient.send("mqttChat", mqttMessage);
         mqttClient.stop();
 
+        this.sendTextField.setText("");
+
+        try {
+            refreshChatArea();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void refreshChatArea() throws SQLException {
+        SQLClient sqlClient = new SQLClient();
+
+
+        sqlClient.dbConnect();
+
+        System.out.print(sqlClient);
+
+        sqlClient.readChat();
+        sqlClient.dbDisconnect();
+        System.out.println(sqlClient.readChat());
 
     }
 
-
-    /**
-     * Observer Stuff
-     *
-     * @param o
-     * @param arg
-     */
-
-    @Override
-    public void update(Observable o, Object arg) {
-        Platform.runLater(() -> {
-            this.status.setText("dummy");
-            this.textField.setText(" platzhalter");
-        });
-    }
 
     @Override
     public void receive(String topic, String message) throws SQLException {
@@ -169,9 +167,12 @@ public class MainMenu extends BorderPane implements Observer, SilasMqttReceiver 
         // to 15-06-23 15:22:06
 
 
-        sqlStatement = "INSERT INTO mqttChat (CREATION_TS, SENDER, MESSAGE) VALUES ('15-06-23 15:22:06', 'silas', 'test' )";
+        SQLClient sqlClient = new SQLClient();
 
-        System.out.print(sqlStatement);
+        sqlStatement = "INSERT INTO chat" +
+                " (CREATION_TS, SENDER, MESSAGE) VALUES ('" + date + "', '" + sender + "', '" + text + "' )";
+
+        System.out.println(sqlStatement);
 
         sqlClient.dbConnect();
 
@@ -179,6 +180,7 @@ public class MainMenu extends BorderPane implements Observer, SilasMqttReceiver 
 
         sqlClient.dbWriter(sqlStatement);
         sqlClient.dbDisconnect();
+
     }
 }
 
