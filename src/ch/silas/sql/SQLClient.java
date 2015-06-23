@@ -5,7 +5,8 @@ import java.sql.*;
 /**
  * Created by Silas Stegmueller on 23.06.15.
  */
-public class SQLClient {
+public class SQLClient
+{
 
 
     Connection c = null;
@@ -42,14 +43,14 @@ public class SQLClient {
 
             }
 
-       /*
-          NO COMMIT NEEDED CAUSED OF AUTO COMMIT
-          try {
+            /*
+            NO COMMIT NEEDED CAUSED OF AUTO COMMIT
+            try {
                 c.commit();
             } catch (SQLException e1) {
                 e1.printStackTrace();
             }
-*/
+            */
 
             try {
                 c.close();
@@ -73,31 +74,27 @@ public class SQLClient {
 
     }
 
+
     public String readChat() throws SQLException {
         String sqlResult = "";
-        ResultSet rs;
-        String sqlQuery = "SELECT creation_ts, sender, message FROM chat;";
-
-        rs = statement.executeQuery(sqlQuery);
+        statement = c.createStatement();
+        ResultSet rs = statement.executeQuery("SELECT creation_ts, sender, message FROM chat;");
 
 
         while (rs.next()) {
-            Date date = rs.getDate("creation_ts");
+            String date = rs.getString("creation_ts");
             String sender = rs.getString("sender");
             String message = rs.getString("message");
-            System.out.println("Date: = " + date);
-            System.out.println("Sender = " + sender);
-            System.out.println("Message = " + message);
-            sqlResult = sqlResult + date + "\n" + sender + message + "\n\n";
+            sqlResult = sqlResult + date + ": " + sender + "\n" + message + "\n\n";
 
-            System.out.println();
+            // System.out.println(sqlResult);
         }
         rs.close();
 
         statement.close();
         c.close();
 
-        System.out.println("Operation done successfully");
+        //   System.out.println("Operation done successfully");
         return sqlResult;
 
     }

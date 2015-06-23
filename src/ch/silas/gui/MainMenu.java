@@ -5,6 +5,7 @@ import ch.silas.ProbSettings;
 import ch.silas.backup.SilasMqttReceiver;
 import ch.silas.mqtt.MqttClient;
 import ch.silas.sql.SQLClient;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
@@ -34,7 +35,7 @@ public class MainMenu extends BorderPane implements SilasMqttReceiver {
     private MenuItem Mmqtt_disconnect, Mexit, Mmqtt_connect;
     private unagaMQTTMessage mqttMessage;
     private MqttClient mqttClient;
-    private Label textField;
+    private TextArea chatHistory;
     private TextField sendTextField;
     private ComboBox comboBox;
     private Label status, chatDivide;
@@ -68,7 +69,8 @@ public class MainMenu extends BorderPane implements SilasMqttReceiver {
         this.comboBox = new ComboBox<>();
 
 
-        this.textField = new Label();
+        this.chatHistory = new TextArea();
+        this.chatHistory.setEditable(false);
         this.sendTextField = new TextField();
 
         this.sendChat = new Button("Send Message");
@@ -86,7 +88,7 @@ public class MainMenu extends BorderPane implements SilasMqttReceiver {
 
 
         this.verticalLeft.getChildren().addAll(this.comboBox, this.sendHWInfo, this.flushChat);
-        this.verticalCenter.getChildren().addAll(this.textField, this.chatDivide, horizontal, sendChat);
+        this.verticalCenter.getChildren().addAll(this.chatHistory, this.chatDivide, horizontal, sendChat);
 
 
         //Fill Borderpane
@@ -96,6 +98,12 @@ public class MainMenu extends BorderPane implements SilasMqttReceiver {
         this.borderPane.setLeft(this.verticalLeft);
         this.borderPane.setTop(this.menuBar);
         this.borderPane.setBottom(this.status);
+
+        try {
+            this.refreshChatArea();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
         mqttClient = new MqttClient("cliendID");
         mqttClient.start(url);
@@ -118,11 +126,20 @@ public class MainMenu extends BorderPane implements SilasMqttReceiver {
             flushChat();
         });
 
+
+        this.Mexit.addEventHandler(ActionEvent.ACTION, event -> {
+            Platform.exit();
+            System.exit(0);
+        });
         //   this.sendChat.setAccelerator(KeyCombination.keyCombination("Enter"));
 
 
     }
 
+
+    /**
+     * Removes all chat DB entries
+     */
     private void flushChat() {
         SQLClient sqlClient = new SQLClient();
 
@@ -136,10 +153,19 @@ public class MainMenu extends BorderPane implements SilasMqttReceiver {
 
         sqlClient.dbWriter(sqlStatement);
         sqlClient.dbDisconnect();
+        try {
+            refreshChatArea();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
     }
 
 
+    /**
+     * @param sender  lock at the properties file
+     * @param message textfield
+     */
     public void sendChatMessage(String sender, String message) {
 
         mqttClient = new MqttClient("sendChatMessage");
@@ -162,6 +188,12 @@ public class MainMenu extends BorderPane implements SilasMqttReceiver {
         }
     }
 
+    /**
+     * This method fetch all chat entries from db and publish it to textfield
+     *
+     * @throws SQLException
+     */
+
     public void refreshChatArea() throws SQLException {
         SQLClient sqlClient = new SQLClient();
 
@@ -170,12 +202,21 @@ public class MainMenu extends BorderPane implements SilasMqttReceiver {
 
         System.out.print(sqlClient);
 
-        sqlClient.dbDisconnect();
-        System.out.println(sqlClient.readChat());
+        this.chatHistory.setText(sqlClient.readChat());
 
+        sqlClient.dbDisconnect();
+
+        chatHistory.selectPositionCaret(chatHistory.getLength());
+        chatHistory.deselect(); //removes the highlighting
     }
 
-
+    /**
+     * the main menu implements my mqtt listener therefore its able to listen for new events
+     *
+     * @param topic
+     * @param message
+     * @throws SQLException
+     */
     @Override
     public void receive(String topic, String message) throws SQLException {
 
@@ -202,6 +243,7 @@ public class MainMenu extends BorderPane implements SilasMqttReceiver {
 
         sqlClient.dbWriter(sqlStatement);
         sqlClient.dbDisconnect();
+
 
     }
 }
