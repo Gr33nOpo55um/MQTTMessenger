@@ -28,7 +28,7 @@ public class MainMenu extends BorderPane implements SilasMqttReceiver {
     private HBox horizontal;
     private VBox verticalCenter, verticalLeft;
     private Menu exitM;
-    private Button sendChat, sendHWInfo;
+    private Button sendChat, sendHWInfo, flushChat;
     private MenuBar menuBar;
     private Menu Menufile;
     private MenuItem Mmqtt_disconnect, Mexit, Mmqtt_connect;
@@ -73,6 +73,7 @@ public class MainMenu extends BorderPane implements SilasMqttReceiver {
 
         this.sendChat = new Button("Send Message");
         this.sendHWInfo = new Button("Send desired HW Info");
+        this.flushChat = new Button("Delete Chat history");
 
         this.chatDivide = new Label("Please enter message");
         this.status = new Label("dummy");
@@ -84,7 +85,7 @@ public class MainMenu extends BorderPane implements SilasMqttReceiver {
         this.horizontal.getChildren().addAll(sendTextField);
 
 
-        this.verticalLeft.getChildren().addAll(this.comboBox, this.sendHWInfo);
+        this.verticalLeft.getChildren().addAll(this.comboBox, this.sendHWInfo, this.flushChat);
         this.verticalCenter.getChildren().addAll(this.textField, this.chatDivide, horizontal, sendChat);
 
 
@@ -112,10 +113,32 @@ public class MainMenu extends BorderPane implements SilasMqttReceiver {
             sendChatMessage(username, this.sendTextField.getText());
 
         });
+
+        this.flushChat.addEventHandler(ActionEvent.ACTION, event -> {
+            flushChat();
+        });
+
         //   this.sendChat.setAccelerator(KeyCombination.keyCombination("Enter"));
 
 
     }
+
+    private void flushChat() {
+        SQLClient sqlClient = new SQLClient();
+
+        String sqlStatement = "DELETE from chat";
+
+        System.out.println(sqlStatement);
+
+        sqlClient.dbConnect();
+
+        System.out.print(sqlClient);
+
+        sqlClient.dbWriter(sqlStatement);
+        sqlClient.dbDisconnect();
+
+    }
+
 
     public void sendChatMessage(String sender, String message) {
 
@@ -147,7 +170,6 @@ public class MainMenu extends BorderPane implements SilasMqttReceiver {
 
         System.out.print(sqlClient);
 
-        sqlClient.readChat();
         sqlClient.dbDisconnect();
         System.out.println(sqlClient.readChat());
 

@@ -76,9 +76,9 @@ public class SQLClient {
     public String readChat() throws SQLException {
         String sqlResult = "";
         ResultSet rs;
-        String sqlQuery = "select creation_ts, sender, message from chat;";
+        String sqlQuery = "SELECT creation_ts, sender, message FROM chat;";
 
-        rs = statement.executeQuery(String.valueOf(sqlQuery));
+        rs = statement.executeQuery(sqlQuery);
 
 
         while (rs.next()) {
