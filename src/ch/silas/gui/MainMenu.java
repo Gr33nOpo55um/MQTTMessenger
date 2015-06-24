@@ -3,6 +3,7 @@ package ch.silas.gui;
 import ch.silas.Message.unagaMQTTMessage;
 import ch.silas.ProbSettings;
 import ch.silas.backup.SilasMqttReceiver;
+import ch.silas.hwINFO.ProvideHWInformation;
 import ch.silas.mqtt.MqttClient;
 import ch.silas.sql.SQLClient;
 import javafx.application.Platform;
@@ -85,6 +86,7 @@ public class MainMenu extends BorderPane implements SilasMqttReceiver {
         this.verticalLeft = new VBox();
 
         this.horizontal.getChildren().addAll(sendTextField);
+        this.sendTextField.setPrefWidth(getMinWidth());
 
 
         this.verticalLeft.getChildren().addAll(this.comboBox, this.sendHWInfo, this.flushChat);
@@ -130,6 +132,10 @@ public class MainMenu extends BorderPane implements SilasMqttReceiver {
         this.Mexit.addEventHandler(ActionEvent.ACTION, event -> {
             Platform.exit();
             System.exit(0);
+        });
+
+        this.sendHWInfo.addEventHandler(ActionEvent.ACTION, event -> {
+            ProvideHWInformation provideHWInformation = new ProvideHWInformation();
         });
         //   this.sendChat.setAccelerator(KeyCombination.keyCombination("Enter"));
 
