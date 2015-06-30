@@ -122,6 +122,7 @@ public class MainMenu extends BorderPane implements SilasMqttReceiver {
         this.sendChat.addEventHandler(ActionEvent.ACTION, event -> {
             sendChatMessage(username, this.sendTextField.getText());
 
+
         });
 
         this.flushChat.addEventHandler(ActionEvent.ACTION, event -> {
